@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weeks Left — See Your Whole Life on One Page</title>
+<meta name="description" content="Enter your birthday and see your entire life as a grid of weeks. Find out how many weeks you have lived, how many remain, and download your personal life chart.">
+<link rel="canonical" href="https://weeksleft.life/">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#F5F0E8">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Weeks Left — See Your Whole Life on One Page">
+<meta property="og:description" content="Enter your birthday and see your entire life as a grid of weeks. How many have passed? How many remain?">
+<meta property="og:url" content="https://weeksleft.life/">
+<meta property="og:image" content="https://weeksleft.life/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Weeks Left — See Your Whole Life on One Page">
+<meta name="twitter:description" content="A life in weeks. One square for every week of a 90-year life.">
+<meta name="twitter:image" content="https://weeksleft.life/og-image.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='4' y='4' width='24' height='24' rx='4' fill='%231A1A2E'/><rect x='8' y='8' width='6' height='6' rx='1' fill='%23E63946'/><rect x='18' y='8' width='6' height='6' rx='1' fill='rgba(255,255,255,.3)'/><rect x='8' y='18' width='6' height='6' rx='1' fill='rgba(255,255,255,.3)'/><rect x='18' y='18' width='6' height='6' rx='1' fill='rgba(255,255,255,.3)'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2987762508906420" crossorigin="anonymous"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Weeks Left","url":"https://weeksleft.life/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Visualize your entire life as a grid of weeks. Enter your birthday to see how many weeks you have lived and how many likely remain."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many weeks are in a human life?","acceptedAnswer":{"@type":"Answer","text":"A 90-year life contains approximately 4,680 weeks. That number fits on a single page — which is the entire point of this tool."}},{"@type":"Question","name":"How many weeks have I been alive?","acceptedAnswer":{"@type":"Answer","text":"Enter your date of birth in the tool above and it will calculate the exact number of complete weeks between your birthday and today."}},{"@type":"Question","name":"Is this based on a book?","acceptedAnswer":{"@type":"Answer","text":"The idea that a life fits on one page is related to concepts in books about mortality and time. Our tool is an independent implementation of the life-in-weeks visualization."}}]}</script>
+<style>
+:root {
+  --paper: #F5F0E8;
+  --paper2: #EDE7DA;
+  --paper3: #E3DBCB;
+  --ink: #1A1824;
+  --ink2: #5C5650;
+  --ink3: #9B948A;
+  --red: #E63946;
+  --navy: #1A1A2E;
+  --navy2: #2D2D4E;
+  --gold: #C9A84C;
+  --lived: #1A1A2E;
+  --future: #D4CBBA;
+  --hair: rgba(26,24,36,.12);
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1060px; margin: 0 auto; padding: 0 26px; }
+
+/* ── HEADER ── */
+header {
+  padding: 26px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hair);
+}
+.logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.logo span { color: var(--red); }
+nav { display: flex; gap: 4px; }
+nav a {
+  color: var(--ink2);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 7px 13px;
+  border-radius: 8px;
+  transition: .14s;
+}
+nav a:hover { color: var(--ink); background: var(--paper2); }
+
+/* ── HERO ── */
+.hero { padding: 56px 0 40px; }
+.hero-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-kicker::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: var(--red); opacity: .4; }
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(44px, 7vw, 86px);
+  line-height: .95;
+  letter-spacing: -.03em;
+  max-width: 14ch;
+}
+h1 em { font-style: italic; color: var(--red); }
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  margin-top: 44px;
+  align-items: start;
+}
+.hero-sub {
+  font-size: 18px;
+  color: var(--ink2);
+  max-width: 46ch;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+/* ── INPUT CARD ── */
+.input-card {
+  background: var(--navy);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 24px 64px -20px rgba(26,24,36,.35);
+}
+.ic-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  color: #F5F0E8;
+  margin-bottom: 22px;
+  letter-spacing: -.01em;
+}
+.ic-field { margin-bottom: 14px; }
+.ic-field label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,.45);
+  margin-bottom: 7px;
+}
+.ic-field input, .ic-field select {
+  width: 100%;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: #F5F0E8;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  transition: .14s;
+}
+.ic-field input:focus, .ic-field select:focus {
+  outline: 2px solid var(--red);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.ic-field input[type=date]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.5); }
+.ic-field select option { background: var(--navy2); }
+.ic-btn {
+  width: 100%;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  background: var(--red);
+  color: #fff;
+  letter-spacing: -.01em;
+  transition: .15s;
+}
+.ic-btn:hover { background: #F04D59; box-shadow: 0 8px 28px -8px rgba(230,57,70,.5); }
+.ic-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* ── STATS ── */
+.stats-row {
+  display: none;
+  grid-template-columns: repeat(4,1fr);
+  gap: 0;
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--hair);
+  margin: 44px 0 0;
+}
+.stats-row.show { display: grid; }
+.stat-cell {
+  padding: 22px 20px;
+  border-left: 1px solid var(--hair);
+}
+.stat-cell:first-child { border-left: none; }
+.stat-num {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.6vw, 44px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+.stat-cell.highlight .stat-num { color: var(--red); }
+.stat-key {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-top: 7px;
+}
+
+/* ── POEM LINE ── */
+.poem-line {
+  display: none;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(20px,2.8vw,28px);
+  color: var(--ink);
+  margin: 32px 0 8px;
+  max-width: 66ch;
+  line-height: 1.45;
+}
+.poem-line.show { display: block; }
+.poem-line b { font-style: normal; font-weight: 700; color: var(--red); }
+
+/* ── GRID ── */
+.grid-section { display: none; margin: 28px 0 10px; }
+.grid-section.show { display: block; }
+.grid-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.grid-meta-left {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink2);
+}
+.legend i {
+  width: 12px; height: 12px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(52, 1fr);
+  gap: 3px;
+}
+.cell {
+  aspect-ratio: 1;
+  border-radius: 2px;
+  background: var(--future);
+  cursor: pointer;
+  transition: transform .1s;
+}
+.cell.lived { background: var(--lived); }
+.cell.now {
+  background: var(--red);
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--red);
+  position: relative; z-index: 2;
+  animation: glow 2.5s ease-in-out infinite;
+}
+@keyframes glow {
+  0%,100% { box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--red); }
+  50%      { box-shadow: 0 0 0 2px var(--paper), 0 0 0 5px rgba(230,57,70,.4); }
+}
+.cell:hover { transform: scale(1.4); z-index: 3; }
+
+/* ── TOOLTIP ── */
+.tip {
+  position: fixed;
+  pointer-events: none;
+  background: var(--navy);
+  color: #F5F0E8;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  padding: 8px 11px;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity .1s;
+  z-index: 40;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+}
+
+/* ── ACTIONS ── */
+.actions-row {
+  display: none;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 22px 0 8px;
+}
+.actions-row.show { display: flex; }
+.btn-primary {
+  cursor: pointer; border: none; border-radius: 10px;
+  padding: 13px 26px;
+  font-family: var(--font-body); font-weight: 600; font-size: 15px;
+  background: var(--navy); color: var(--paper);
+  transition: .15s;
+}
+.btn-primary:hover { background: var(--navy2); transform: translateY(-1px); }
+.btn-outline {
+  cursor: pointer; border: 1.5px solid var(--hair); border-radius: 10px;
+  padding: 12px 22px;
+  font-family: var(--font-body); font-weight: 500; font-size: 14.5px;
+  background: transparent; color: var(--ink2);
+  transition: .15s;
+}
+.btn-outline:hover { border-color: var(--ink3); color: var(--ink); }
+
+/* ── AD ── */
+.ad-wrap { margin: 44px 0; display: flex; justify-content: center; }
+.ad-unit {
+  width: 100%; max-width: 728px; min-height: 90px;
+  background: var(--paper2);
+  border: 1px solid var(--hair);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* ── CONTENT ── */
+.content { max-width: 700px; padding: 16px 0; }
+.content h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px,3.6vw,36px);
+  letter-spacing: -.02em;
+  margin: 44px 0 14px;
+  line-height: 1.1;
+}
+.content h3 { font-weight: 600; font-size: 17px; margin: 24px 0 8px; }
+.content p { color: #4A4540; margin-bottom: 14px; line-height: 1.75; }
+.content p a { color: var(--red); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--hair);
+  margin-top: 60px;
+  padding: 28px 0 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: var(--ink3);
+  font-size: 13px;
+}
+.ft-links { display: flex; gap: 4px; flex-wrap: wrap; }
+.ft-links a {
+  color: var(--ink3); text-decoration: none;
+  padding: 5px 10px; border-radius: 6px; transition: .12s;
+}
+.ft-links a:hover { color: var(--ink2); background: var(--paper2); }
+
+/* ── COOKIE BANNER ── */
+#cc-banner {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 9999;
+  display: none;
+  background: var(--navy);
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding: 16px 24px;
+  box-shadow: 0 -12px 40px -16px rgba(0,0,0,.4);
+}
+#cc-banner .cc-inner {
+  max-width: 1060px; margin: 0 auto;
+  display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center;
+}
+#cc-banner p { font-size: 13.5px; color: rgba(245,240,232,.75); flex: 1; min-width: 220px; }
+#cc-banner p a { color: var(--red); }
+#cc-accept {
+  cursor: pointer; border: none; border-radius: 8px;
+  padding: 10px 22px;
+  font-family: var(--font-body); font-weight: 600; font-size: 13.5px;
+  background: var(--red); color: #fff; white-space: nowrap;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width: 820px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+  .stats-row.show { grid-template-columns: repeat(2,1fr); }
+  .stat-cell:nth-child(3) { border-left: none; }
+  .grid-container { gap: 2px; }
+  h1 { font-size: 52px; }
+}
+@media(max-width: 540px) {
+  h1 { font-size: 42px; }
+  .grid-container { gap: 1.5px; }
+}
+@media(prefers-reduced-motion: reduce) {
+  .cell.now { animation: none; }
+  *, *::before, *::after { transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="logo">Weeks<span>Left</span></div>
+    <nav>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-kicker">One life · one page</div>
+    <h1>Your whole life, <em>one square</em> at a time.</h1>
+
+    <div class="hero-grid">
+      <p class="hero-sub">A 90-year life is about 4,680 weeks. Enter your birthday and watch them appear — the filled squares are gone, the glowing one is right now, and everything else is still yours.</p>
+
+      <div class="input-card">
+        <div class="ic-title">Show my life</div>
+        <div class="ic-field">
+          <label for="dob">Date of birth</label>
+          <input type="date" id="dob" value="1990-01-01">
+        </div>
+        <div class="ic-field">
+          <label for="lifespan">Life expectancy (years)</label>
+          <select id="lifespan">
+            <option value="80">80 years</option>
+            <option value="85">85 years</option>
+            <option value="90" selected>90 years</option>
+            <option value="95">95 years</option>
+            <option value="100">100 years</option>
+          </select>
+        </div>
+        <button class="ic-btn" id="goBtn">Generate my grid →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-cell highlight">
+      <div class="stat-num" id="sLived">—</div>
+      <div class="stat-key">weeks lived</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="sLeft">—</div>
+      <div class="stat-key">weeks remaining</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="sPct">—</div>
+      <div class="stat-key">of grid filled</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num" id="sDays">—</div>
+      <div class="stat-key">days alive</div>
+    </div>
+  </div>
+
+  <p class="poem-line" id="poem"></p>
+
+  <!-- GRID -->
+  <section class="grid-section" id="gridSection">
+    <div class="grid-meta">
+      <div class="grid-meta-left">← 52 weeks per row · each row = 1 year →</div>
+      <div class="legend">
+        <span><i style="background:var(--lived)"></i>Lived</span>
+        <span><i style="background:var(--red)"></i>This week</span>
+        <span><i style="background:var(--future)"></i>Ahead</span>
+      </div>
+    </div>
+    <div class="grid-container" id="grid"></div>
+  </section>
+
+  <div class="actions-row" id="actionsRow">
+    <button class="btn-primary" id="downloadBtn">⬇ Download poster</button>
+    <button class="btn-outline" id="resetBtn">Start over</button>
+  </div>
+
+  <!-- AD SLOT 1 -->
+  <div class="ad-wrap">
+    <div class="ad-unit">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2987762508906420" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+
+  <!-- CONTENT / SEO -->
+  <article class="content">
+    <h2>How many weeks have I been alive?</h2>
+    <p>The tool above counts the exact number of complete weeks between your date of birth and today, then maps every week of a full life onto a single grid. It updates the moment you change your birthday, and all of the maths runs entirely in your browser — nothing you type is stored or sent anywhere.</p>
+
+    <h3>Why weeks, not years?</h3>
+    <p>Years feel abstract and days feel overwhelming, but a week is a unit you actually live through — a Monday to Sunday you can recall. Seeing all of them at once is a useful kind of sobering. The filled squares are not a warning: they are proof of what you have already done. The empty ones are not a threat: they are an invitation.</p>
+
+    <h3>Is the estimate accurate?</h3>
+    <p>The "weeks remaining" figure is a simple calculation: life expectancy minus your current age, converted to weeks. Nobody knows their real number. That ambiguity is precisely the point — treat it as a prompt to spend the remaining squares intentionally, not as a prophecy about when the grid ends.</p>
+
+    <h3>Download your poster</h3>
+    <p>After generating your grid, click "Download poster" to save a clean PNG of your personal life chart. People frame it, use it as a desktop wallpaper, or share it as a reminder that a life is short enough to see at once — and long enough to do something meaningful with.</p>
+  </article>
+
+  <!-- AD SLOT 2 -->
+  <div class="ad-wrap" style="margin: 10px 0 44px">
+    <div class="ad-unit" style="max-width:336px;min-height:280px">
+      <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-2987762508906420" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+
+  <footer>
+    <div class="ft-links">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div>© <span id="yr"></span> WeeksLeft.life · A quiet reminder, not a prophecy</div>
+  </footer>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<!-- COOKIE BANNER -->
+<div id="cc-banner">
+  <div class="cc-inner">
+    <p>We use cookies, including from Google, to run this site and serve ads. See our <a href="privacy.html">Privacy Policy</a>.</p>
+    <button id="cc-accept">Got it</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var MS_WEEK = 7*24*3600000;
+var $ = function(id){ return document.getElementById(id); };
+
+// year
+var yrEl = $("yr"); if(yrEl) yrEl.textContent = new Date().getFullYear();
+
+// cookie banner
+try{
+  var CB = $("cc-banner");
+  if(!localStorage.getItem("cc-ok-weeksleft")) CB.style.display="block";
+  $("cc-accept").addEventListener("click",function(){
+    try{localStorage.setItem("cc-ok-weeksleft","1");}catch(e){}
+    CB.style.display="none";
+  });
+}catch(e){}
+
+var state = null;
+
+function nf(n){ return n.toLocaleString("en-US"); }
+function fmtDate(d){ return d.toLocaleDateString("en-US",{month:"short",year:"numeric"}); }
+
+function compute(){
+  var dobStr = $("dob").value;
+  if(!dobStr) return null;
+  var dob = new Date(dobStr+"T00:00:00");
+  if(isNaN(dob)) return null;
+  var span = Number($("lifespan").value)||90;
+  var now = new Date();
+  var weeksLived = Math.max(0, Math.floor((now - dob)/MS_WEEK));
+  var totalWeeks = Math.round(span*52);
+  var daysAlive = Math.floor((now - dob)/86400000);
+  return {dob:dob, span:span, now:now, weeksLived:weeksLived, totalWeeks:totalWeeks, daysAlive:daysAlive};
+}
+
+function show(id){ var el=$(id); if(el) el.classList.add("show"); }
+function hide(id){ var el=$(id); if(el) el.classList.remove("show"); }
+
+function buildGrid(s){
+  var g = $("grid"); g.innerHTML="";
+  var frag = document.createDocumentFragment();
+  for(var i=0; i<s.totalWeeks; i++){
+    var c = document.createElement("div");
+    c.className = "cell" + (i < s.weeksLived ? " lived" : "") + (i === s.weeksLived ? " now" : "");
+    c.dataset.i = i;
+    frag.appendChild(c);
+  }
+  g.appendChild(frag);
+
+  // animate cells filling in
+  var cells = g.querySelectorAll(".cell.lived, .cell.now");
+  cells.forEach(function(c,idx){
+    c.style.opacity = "0";
+    c.style.transform = "scale(.5)";
+    setTimeout(function(){
+      c.style.transition = "opacity .18s, transform .18s";
+      c.style.opacity = "1";
+      c.style.transform = "scale(1)";
+    }, Math.min(idx*1.2, 800) + Math.random()*20);
+  });
+}
+
+// tooltip
+var tip = $("tip");
+document.addEventListener("mousemove", function(e){
+  var c = e.target.closest(".cell");
+  if(!c || !state){ tip.style.opacity=0; return; }
+  var i = Number(c.dataset.i);
+  var weekStart = new Date(state.dob.getTime() + i*MS_WEEK);
+  var age = Math.floor(i/52);
+  tip.textContent = "Age "+age+" · week "+(i%52+1)+" · "+fmtDate(weekStart)+" · "+(i<state.weeksLived?"lived":i===state.weeksLived?"now →":"ahead");
+  tip.style.left = (e.clientX+14)+"px";
+  tip.style.top  = (e.clientY+14)+"px";
+  tip.style.opacity = 1;
+});
+document.addEventListener("mouseleave", function(){ tip.style.opacity=0; });
+
+function render(){
+  var s = compute(); if(!s) return;
+  state = s;
+  var left = Math.max(0, s.totalWeeks - s.weeksLived);
+  var pct  = Math.min(100, Math.round(s.weeksLived/s.totalWeeks*100));
+  $("sLived").textContent = nf(s.weeksLived);
+  $("sLeft").textContent  = nf(left);
+  $("sPct").textContent   = pct+"%";
+  $("sDays").textContent  = nf(s.daysAlive);
+  $("poem").innerHTML = "You have lived <b>"+nf(s.weeksLived)+" weeks</b>. If you reach "+s.span+", about <b>"+nf(left)+"</b> remain — "+Math.round(left/52)+" more summers, "+nf(left*7)+" more mornings.";
+  buildGrid(s);
+  show("statsRow"); show("poem"); show("gridSection"); show("actionsRow");
+  setTimeout(function(){ $("gridSection").scrollIntoView({behavior:"smooth",block:"start"}); }, 120);
+}
+
+$("goBtn").addEventListener("click", render);
+$("resetBtn").addEventListener("click", function(){
+  ["statsRow","poem","gridSection","actionsRow"].forEach(hide);
+  state = null; window.scrollTo({top:0,behavior:"smooth"});
+});
+
+// DOWNLOAD POSTER
+$("downloadBtn").addEventListener("click", function(){
+  if(!state) return;
+  var cols = 52, rows = Math.ceil(state.totalWeeks/cols);
+  var cell = 14, gap = 4, padX = 64, padTop = 160, padBottom = 64;
+  var W = padX*2 + cols*cell + (cols-1)*gap;
+  var H = padTop + padBottom + rows*cell + (rows-1)*gap;
+  var sc = 2;
+  var cv = document.createElement("canvas");
+  cv.width = W*sc; cv.height = H*sc;
+  var x = cv.getContext("2d"); x.scale(sc, sc);
+  // bg
+  x.fillStyle = "#F5F0E8"; x.fillRect(0,0,W,H);
+  // header rule
+  x.fillStyle = "#1A1824"; x.fillRect(padX, 62, W-padX*2, 2);
+  // title
+  x.fillStyle = "#1A1824";
+  x.font = "300 48px 'Playfair Display', Georgia, serif";
+  x.fillText("my life in weeks", padX, 52);
+  // sub
+  x.fillStyle = "#9B948A";
+  x.font = "400 14px 'JetBrains Mono', monospace";
+  x.fillText(nf(state.weeksLived)+" weeks lived  ·  born "+state.dob.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})+"  ·  "+state.span+" year life", padX, 90);
+  // legend
+  var lx = padX;
+  [["#1A1824","lived"],["#E63946","this week"],["#D4CBBA","ahead"]].forEach(function(item){
+    x.fillStyle = item[0];
+    x.beginPath(); x.roundRect(lx, 108, 13, 13, 2); x.fill();
+    x.fillStyle = "#5C5650";
+    x.font = "400 12px 'JetBrains Mono', monospace";
+    x.fillText(item[1], lx+18, 120); lx += x.measureText(item[1]).width + 38;
+  });
+  // grid
+  for(var i=0; i<state.totalWeeks; i++){
+    var r = Math.floor(i/cols), c = i%cols;
+    var cx = padX + c*(cell+gap), cy = padTop + r*(cell+gap);
+    if(i < state.weeksLived) x.fillStyle="#1A1824";
+    else if(i===state.weeksLived) x.fillStyle="#E63946";
+    else x.fillStyle="#D4CBBA";
+    x.beginPath(); x.roundRect(cx,cy,cell,cell,2); x.fill();
+  }
+  x.fillStyle="#9B948A"; x.font="400 11px 'JetBrains Mono',monospace";
+  x.fillText("weeksleft.life  ·  one square = one week  ·  52 per row", padX, H-26);
+  var a = document.createElement("a");
+  a.download="my-life-in-weeks.png"; a.href=cv.toDataURL("image/png"); a.click();
+});
+})();
+</script>
+</body>
+</html>
